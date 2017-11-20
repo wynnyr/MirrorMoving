@@ -60,17 +60,24 @@ void ofApp::update(){
 	osc_mirrorPosX_Fine = ofMap(dmx_mirrorPosX_Fine, 0, 255, 0.0, 1.0);
 	osc_mirrorPosY_Fine = ofMap(dmx_mirrorPosY_Fine, 0, 255, 0.0, 1.0);
 
-	if (loop_send_count >= 10) {
+	if (loop_send_count >= 50) {
 		loop_send_count = 0;
 		if (fsend == 0) {
-			fsend = 1;
+			fsend = 0;
 			if (osc_mirrorPosX_Coarse != osc_mirrorPosX_Coarse_prev) {
 				osc_mirrorPosX_Coarse_prev = osc_mirrorPosX_Coarse;
 				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 1));
 				m.addFloatArg(osc_mirrorPosX_Coarse);
+				//m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 2));
+				m.addFloatArg(osc_mirrorPosX_Fine);
+				//m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 3));
+				m.addFloatArg(osc_mirrorPosY_Coarse);
+				//m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 4));
+				m.addFloatArg(osc_mirrorPosY_Fine);
 				sender.sendMessage(m, false);
 			}
 		}
+		/*
 		else if (fsend == 1) {
 			fsend = 2;
 
@@ -101,6 +108,7 @@ void ofApp::update(){
 				sender.sendMessage(m, false);
 			}
 		}
+		*/
 	}
 	else {
 		loop_send_count = loop_send_count + 1;
@@ -116,10 +124,10 @@ void ofApp::draw(){
 	buf[0] = "osc to " + string(HOST) + string(":") + ofToString(PORT);
 	buf[1] = "mirror " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(mirrorPosX, 3) + string(",") + ofToString(mirrorPosY, 3) + "]";
 
-	buf[2] = "OSC_Ch1 " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(osc_mirrorPosX_Coarse, 6) + string(",") + ofToString(osc_mirrorPosY_Coarse, 6) + "]";
-	buf[3] = "OSC_Ch2 " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(osc_mirrorPosX_Fine, 6) + string(",") + ofToString(osc_mirrorPosY_Fine, 6) + "]";
-	buf[4] = "DMX_Ch1 " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(dmx_mirrorPosX_Coarse, 3) + string(",") + ofToString(dmx_mirrorPosY_Coarse, 3) + "]";
-	buf[5] = "DMX_Ch2 " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(dmx_mirrorPosX_Fine, 3) + string(",") + ofToString(dmx_mirrorPosY_Fine, 3) + "]";
+	buf[2] = "OSC_X " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(osc_mirrorPosX_Coarse, 6) + string(",") + ofToString(osc_mirrorPosX_Fine, 6) + "]";
+	buf[3] = "OSC_Y " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(osc_mirrorPosY_Coarse, 6) + string(",") + ofToString(osc_mirrorPosY_Fine, 6) + "]";
+	buf[4] = "DMX_X " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(dmx_mirrorPosX_Coarse, 3) + string(",") + ofToString(dmx_mirrorPosX_Fine, 3) + "]";
+	buf[5] = "DMX_Y " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(dmx_mirrorPosY_Coarse, 3) + string(",") + ofToString(dmx_mirrorPosY_Fine, 3) + "]";
 
 	buf[6] = "Servo Coarse " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Coarse, 3) + string(",") + ofToString(ServoPosY_Coarse, 3) + "]";
 	buf[7] = "Error " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Error, 3) + string(",") + ofToString(ServoPosX_Error, 3) + "]";
