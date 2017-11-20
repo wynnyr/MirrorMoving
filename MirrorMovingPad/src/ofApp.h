@@ -31,6 +31,8 @@ class ofApp : public ofBaseApp{
 		ofTrueTypeFont font;
 		ofxOscSender sender;
 
+		int fsend=0;
+
 		int mirrorPosX = 0;
 		int mirrorPosY = 0;
 
