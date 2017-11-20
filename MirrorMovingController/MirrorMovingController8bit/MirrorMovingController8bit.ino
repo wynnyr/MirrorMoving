@@ -1,0 +1,151 @@
+#include <SPI.h>
+#include <Artnet.h>
+#include <Ethernet2.h>
+#include <EthernetUdp2.h>
+#include <DynamixelSerial1.h>
+
+Artnet artnet;
+EthernetClient client;
+
+const int ledPin1 = 3;
+const int ledPin2 = 5;
+const int btnPin1 = 6;
+const int btnPin2 = 7;
+
+int flagbtn1 = 0;
+
+
+// Servo Address
+const int servoPan = 1;
+const int servoTilt= 2;
+
+
+// Servo Position Limit
+int servoTiltMin = 622;
+int servoTiltMax = 704;
+int servoPanMin  = 204;
+int servoPanMax  = 820;
+
+int servoTilt_current = 672;
+int servoPan_current  = 512;
+int servoTilt_target  = servoTilt_current;
+int servoPan_target   = servoPan_current;
+
+byte ip[]  = {192, 168, 1, 23};
+byte mac[] = {0x04, 0xE9, 0xE5, 0x00, 0x69, 0xEC};
+int DMX_universe = 0;
+int DMX_Addr     = 0;
+
+int  debugMode  = 0;
+int  servoError = -1;
+
+int  ledState = LOW; 
+int  ledBlinkCount = 0;
+unsigned long previousMillis = 0;
+
+unsigned long previousMillis_Tilt = 0;
+unsigned long previousMillis_Pan = 0;
+unsigned long previousMillis_Main = 0;
+
+int ff=0;
+
+void setup() {
+  pinMode(ledPin1, OUTPUT);
+  pinMode(ledPin2, OUTPUT);  
+  pinMode(btnPin1, INPUT_PULLUP);
+  pinMode(btnPin2, INPUT_PULLUP); 
+
+  digitalWrite(ledPin1,HIGH);
+  digitalWrite(ledPin2,HIGH);
+
+  Serial.begin(9600);
+  Dynamixel.begin(1000000, 2);
+  Dynamixel.moveSpeed (servoPan  ,servoPan_current,300);
+  Dynamixel.moveSpeed (servoTilt ,servoTilt_current,300); 
+
+  Dynamixel.setCMargin(servoPan,0,0);
+  Dynamixel.setCMargin(servoTilt,0,0);
+  Dynamixel.setCSlope(servoPan,254,254);
+  Dynamixel.setCSlope(servoTilt,254,254);
+  
+  artnet.begin(mac, ip);
+  artnet.setArtDmxCallback(onDmxFrame);
+
+  
+}
+
+void loop() {
+  unsigned long currentMillis_Main = millis();
+  
+  artnet.read();
+  ledBlink();
+
+  if (currentMillis_Main - previousMillis_Main >= 5){
+    previousMillis_Main = currentMillis_Main;
+    
+    if(ff==1){
+      ff = 0;
+      Dynamixel.moveSpeed(servoPan ,servoPan_target,1023) ;
+    }
+    else{
+      ff = 1;
+      Dynamixel.moveSpeed(servoTilt , servoTilt_target,1023) ;
+    }
+
+    if (digitalRead(btnPin1) == LOW && flagbtn1 == 0){
+      flagbtn1 = 1;
+      int Pan_Position  = Dynamixel.readPosition(servoPan);
+      int Tilt_Position = Dynamixel.readPosition(servoTilt);
+      Serial.print("Pan_Pos:");
+      Serial.print(Pan_Position);
+      Serial.print(" Tilt_Pos:");
+      Serial.println(Tilt_Position);
+    }
+
+    if (digitalRead(btnPin2) == LOW && flagbtn1 == 1){
+     flagbtn1 = 0;
+    }
+  }
+}
+
+void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* data)
+{
+  if(universe == DMX_universe){
+    servoPan_target  = map(data[DMX_Addr],  0, 255, servoPanMin,  servoPanMax);
+    servoTilt_target = map(data[DMX_Addr+1],0, 255, servoTiltMin, servoTiltMax);
+    digitalWrite(ledPin2,LOW);
+  }
+  else
+  {
+    digitalWrite(ledPin2,HIGH);
+  }
+  
+  ledBlinkCount = 100;
+}
+
+void ledBlink(void){
+  static long interval;
+  unsigned long currentMillis = millis();
+  
+  if (ledBlinkCount >= 1){
+    ledBlinkCount = ledBlinkCount-1;
+    interval=50;
+  }
+  else{
+    digitalWrite(ledPin2,HIGH); 
+    interval=500;
+  }
+    
+  if (currentMillis - previousMillis >= interval){
+    previousMillis = currentMillis;
+    
+    if (ledState == LOW){
+      ledState = HIGH;
+    } else{
+      ledState = LOW;
+    }
+
+    digitalWrite(ledPin1,ledState);
+  }
+}
+
