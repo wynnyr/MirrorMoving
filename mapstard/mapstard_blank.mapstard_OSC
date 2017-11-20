@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <OSCSetup>
     <Commands>
-        <IPAddress>192.168.1.22</IPAddress>
+        <IPAddress>192.168.1.117</IPAddress>
         <IPPort>8000</IPPort>
      </Commands>
 </OSCSetup>
