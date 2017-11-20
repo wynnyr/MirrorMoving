@@ -3,7 +3,7 @@
 #include "ofMain.h"
 #include "ofxOsc.h"
 
-#define HOST "192.168.1.115"
+#define HOST "192.168.1.117"
 #define PORT 8000
 
 class ofApp : public ofBaseApp{
