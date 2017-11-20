@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DMXConfiguration>
+<DMXControl>
+		<Name>Mirror</Name>
+		<Type>Mirror</Type>
+		<Offset>0</Offset>
+		<Channels>
+			<Channel>
+				<Name>PanLo</Name>
+				<Type>PanLo</Type>
+				<Address>1</Address>
+				<Hidden>0</Hidden>
+				<Color>
+					<R>255</R>
+					<G>0</G>
+					<B>0</B>
+				</Color>
+			</Channel>
+			<Channel>
+				<Name>PanHi</Name>
+				<Type>PanHi</Type>
+				<Address>2</Address>
+				<Hidden>1</Hidden>
+				<Color>
+					<R>255</R>
+					<G>50</G>
+					<B>0</B>
+				</Color>
+			</Channel>
+			<Channel>
+				<Name>TiltLo</Name>
+				<Type>TiltLo</Type>
+				<Address>3</Address>
+				<Hidden>1</Hidden>
+				<Color>
+					<R>0</R>
+					<G>255</G>
+					<B>0</B>
+				</Color>
+			</Channel>
+			<Channel>
+				<Name>TiltHi</Name>
+				<Type>TiltHi</Type>
+				<Address>4</Address>
+				<Hidden>1</Hidden>
+				<Color>
+					<R>0</R>
+					<G>255</G>
+					<B>50</B>
+				</Color>
+			</Channel>
+	</DMXControl>
+</DMXConfiguration>

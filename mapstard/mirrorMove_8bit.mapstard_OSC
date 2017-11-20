@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<OSCSetup>
+    <Commands>
+        <IPAddress>192.168.1.115</IPAddress>
+        <IPPort>8000</IPPort>
+        <Command>
+            <Input>/dmx/fader1</Input>
+            <Action>DMX Change Channel Values</Action>
+            <Layer>1</Layer>
+            <Output>0</Output>
+            <Media>0</Media>
+            <PlayList>0</PlayList>
+            <DMX>
+                <ChannelIndex>1</ChannelIndex>
+                <ChannelValue>0</ChannelValue>
+            </DMX>
+        </Command>
+        <Command>
+            <Input>/dmx/fader2</Input>
+            <Action>DMX Change Channel Values</Action>
+            <Layer>1</Layer>
+            <Output>0</Output>
+            <Media>0</Media>
+            <PlayList>0</PlayList>
+            <DMX>
+                <ChannelIndex>2</ChannelIndex>
+                <ChannelValue>0</ChannelValue>
+            </DMX>
+        </Command>
+    </Commands>
+</OSCSetup>
