@@ -56,3 +56,4 @@ MirrorMovingPad/obj/Release/MirrorMovingPad.tlog/rc.command.1.tlog
 /MirrorMovingPad/obj
 MirrorMovingPad/.vs/MirrorMovingPad/v14/.suo
 MirrorMovingPad/obj/Release/MirrorMovingPad.vcxprojResolveAssemblyReference.cache
+/MirrorMovingPad/src/*.TMP
