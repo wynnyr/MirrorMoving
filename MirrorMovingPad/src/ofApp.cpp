@@ -2,22 +2,202 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+	ofSetWindowTitle("Mirror Remote");
 
+	ofBackground(40, 100, 40);
+	ofSetCircleResolution(50);
+	sender.setup(HOST, PORT);
+
+
+	ServoPan_min  = 204;
+	ServoPan_max  = 820;
+	ServoTilt_min = 622;
+	ServoTilt_max = 704;
+
+	windowWidth = ofGetWindowWidth();
+	windowHeight = ofGetWindowHeight();
+
+	Servo_Pan_Res = ServoPan_max - ServoPan_min;
+	Servo_Tilt_Res = ServoTilt_max - ServoTilt_min;
+
+	for (int i = 0; i < 9; i++) {
+		circlePosX[i] = ofMap(ServoPan_min + ((ServoPan_max - ServoPan_min)   * 0.5), ServoPan_min, ServoPan_max, borderLeft, windowWidth - borderRight);
+		circlePosY[i] = ofMap(ServoTilt_min + ((ServoTilt_max - ServoTilt_min) * 0.5), ServoTilt_max, ServoTilt_min, borderTop, windowHeight - borderBottom);
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+	static int fsend;
+	ofxOscMessage m;
+
+	windowWidth = ofGetWindowWidth();
+	windowHeight = ofGetWindowHeight();
+
+	mirrorPosX = ofMap(circlePosX[mirrorIndex], borderLeft, windowWidth - borderRight, ServoPan_min, ServoPan_max) - (ServoPan_min  * 1.0);
+	mirrorPosY = ofMap(circlePosY[mirrorIndex], borderTop, windowHeight - borderBottom, ServoTilt_max, ServoTilt_min) - (ServoTilt_min * 1.0);
+
+	dmx_mirrorPosX_Coarse = ofMap(mirrorPosX, 0, Servo_Pan_Res, 0, 255);
+	dmx_mirrorPosY_Coarse = ofMap(mirrorPosY, 0, Servo_Tilt_Res, 0, 255);
+
+	ServoPosX_Coarse = ofMap(dmx_mirrorPosX_Coarse, 0, 255, ServoPan_min, ServoPan_max) - (ServoPan_min  * 1.0);
+	ServoPosY_Coarse = ofMap(dmx_mirrorPosY_Coarse, 255, 0, ServoTilt_max, ServoTilt_min) - (ServoTilt_min * 1.0);
+
+	ServoPosX_Error = mirrorPosX - ServoPosX_Coarse;
+	ServoPosY_Error = mirrorPosY - ServoPosY_Coarse;
+
+	dmx_mirrorPosX_Fine = ofMap(ServoPosX_Error, 0.0, (Servo_Pan_Res / 255.0), 0, 255);
+	dmx_mirrorPosY_Fine = ofMap(ServoPosY_Error, 0.0, (Servo_Tilt_Res / 255.0), 0, 255);
+
+	ServoPosX_Error_Check = ofMap(dmx_mirrorPosX_Fine, 0, 255, 0, (Servo_Pan_Res / 255.0));
+	ServoPosY_Error_Check = ofMap(dmx_mirrorPosY_Fine, 0, 255, 0, (Servo_Tilt_Res / 255.0));
+
+	ServoPosX_Total = ServoPosX_Coarse + ServoPosX_Error_Check;
+	ServoPosY_Total = ServoPosY_Coarse + ServoPosY_Error_Check;
+
+	osc_mirrorPosX_Coarse = ofMap(dmx_mirrorPosX_Coarse, 0, 255, 0.0, 1.0);
+	osc_mirrorPosY_Coarse = ofMap(dmx_mirrorPosY_Coarse, 0, 255, 0.0, 1.0);
+	osc_mirrorPosX_Fine = ofMap(dmx_mirrorPosX_Fine, 0, 255, 0.0, 1.0);
+	osc_mirrorPosY_Fine = ofMap(dmx_mirrorPosY_Fine, 0, 255, 0.0, 1.0);
+
+	if (loop_send_count >= 10) {
+		loop_send_count = 0;
+		if (fsend == 0) {
+			fsend = 1;
+			if (osc_mirrorPosX_Coarse != osc_mirrorPosX_Coarse_prev) {
+				osc_mirrorPosX_Coarse_prev = osc_mirrorPosX_Coarse;
+				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 1));
+				m.addFloatArg(osc_mirrorPosX_Coarse);
+				sender.sendMessage(m, false);
+			}
+		}
+		else if (fsend == 1) {
+			fsend = 2;
+
+			if (osc_mirrorPosX_Fine != osc_mirrorPosX_Fine_prev) {
+				osc_mirrorPosX_Fine_prev = osc_mirrorPosX_Fine;
+				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 2));
+				m.addFloatArg(osc_mirrorPosX_Fine);
+				sender.sendMessage(m, false);
+			}
+		}
+		else if (fsend == 2) {
+			fsend = 3;
+
+			if (osc_mirrorPosY_Coarse != osc_mirrorPosY_Coarse_prev) {
+				osc_mirrorPosY_Coarse_prev = osc_mirrorPosY_Coarse;
+				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 3));
+				m.addFloatArg(osc_mirrorPosY_Coarse);
+				sender.sendMessage(m, false);
+			}
+		}
+		else if (fsend == 3) {
+			fsend = 0;
+
+			if (osc_mirrorPosY_Fine != osc_mirrorPosY_Fine_prev) {
+				osc_mirrorPosY_Fine_prev = osc_mirrorPosY_Fine;
+				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 4));
+				m.addFloatArg(osc_mirrorPosY_Fine);
+				sender.sendMessage(m, false);
+			}
+		}
+	}
+	else {
+		loop_send_count = loop_send_count + 1;
+	}
 
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+	string buf[10];
+	int txtPos = 20;
+
+	buf[0] = "osc to " + string(HOST) + string(":") + ofToString(PORT);
+	buf[1] = "mirror " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(mirrorPosX, 3) + string(",") + ofToString(mirrorPosY, 3) + "]";
+
+	buf[2] = "OSC_Ch1 " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(osc_mirrorPosX_Coarse, 6) + string(",") + ofToString(osc_mirrorPosY_Coarse, 6) + "]";
+	buf[3] = "OSC_Ch2 " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(osc_mirrorPosX_Fine, 6) + string(",") + ofToString(osc_mirrorPosY_Fine, 6) + "]";
+	buf[4] = "DMX_Ch1 " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(dmx_mirrorPosX_Coarse, 3) + string(",") + ofToString(dmx_mirrorPosY_Coarse, 3) + "]";
+	buf[5] = "DMX_Ch2 " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(dmx_mirrorPosX_Fine, 3) + string(",") + ofToString(dmx_mirrorPosY_Fine, 3) + "]";
+
+	buf[6] = "Servo Coarse " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Coarse, 3) + string(",") + ofToString(ServoPosY_Coarse, 3) + "]";
+	buf[7] = "Error " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Error, 3) + string(",") + ofToString(ServoPosX_Error, 3) + "]";
+	buf[8] = "Error Check " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Error_Check, 3) + string(",") + ofToString(ServoPosY_Error_Check, 3) + "]";
+	buf[9] = "Servo Target" + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Total, 3) + string(",") + ofToString(ServoPosY_Total, 3) + "]";
+
+	ofSetHexColor(0xFFFFFF);
+
+
+	ofDrawBitmapString(buf[0], 10, txtPos); txtPos = txtPos + 20;
+	ofDrawBitmapString(buf[1], 10, txtPos); txtPos = txtPos + 20;
+	ofDrawBitmapString(buf[2], 10, txtPos); txtPos = txtPos + 20;
+	ofDrawBitmapString(buf[3], 10, txtPos); txtPos = txtPos + 20;
+	ofDrawBitmapString(buf[4], 10, txtPos); txtPos = txtPos + 20;
+	ofDrawBitmapString(buf[5], 10, txtPos); txtPos = txtPos + 20;
+	ofDrawBitmapString(buf[6], 10, txtPos); txtPos = txtPos + 20;
+	ofDrawBitmapString(buf[7], 10, txtPos); txtPos = txtPos + 20;
+	ofDrawBitmapString(buf[8], 10, txtPos); txtPos = txtPos + 20;
+	ofDrawBitmapString(buf[9], 10, txtPos); txtPos = txtPos + 20;
+
+	ofNoFill();
+	ofSetHexColor(0xFFFFFF);
+
+	//Draw PanalXY Rectangle
+	ofDrawRectangle(borderLeft, borderTop, windowWidth - (borderLeft + borderRight), windowHeight - (borderTop + borderBottom));
+	ofDrawLine(circlePosX[mirrorIndex], borderTop, circlePosX[mirrorIndex], windowHeight - borderBottom);
+	ofDrawLine(borderLeft, circlePosY[mirrorIndex], windowWidth - borderRight, circlePosY[mirrorIndex]);
+	drawCircle(circlePosX[mirrorIndex], circlePosY[mirrorIndex], circleRadius, 0xFF00FF, false);
 
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+	if (key >= '1' && key <= '9') {
+		mirrorIndex = key - '1';
+	}
 
+	if ((key == OF_KEY_LEFT) || (key == OF_KEY_RIGHT) || (key == OF_KEY_UP) || (key == OF_KEY_DOWN))
+	{
+		if (key == OF_KEY_LEFT) {
+			float circlePosX_tmp = ofMap(mirrorPosX + ServoPan_min - 1, ServoPan_min, ServoPan_max, borderLeft, windowWidth - borderRight);
+
+			if (circlePosX_tmp > borderLeft) {
+				circlePosX[mirrorIndex] = circlePosX_tmp;
+			}
+			else {
+				circlePosX[mirrorIndex] = borderLeft;
+			}
+		}
+		else if (key == OF_KEY_RIGHT) {
+			float circlePosX_tmp = ofMap(mirrorPosX + ServoPan_min + 1, ServoPan_min, ServoPan_max, borderLeft, windowWidth - borderRight);
+			if (circlePosX_tmp < (windowWidth - borderRight)) {
+				circlePosX[mirrorIndex] = circlePosX_tmp;
+			}
+			else {
+				circlePosX[mirrorIndex] = windowWidth - borderRight;
+			}
+		}
+
+		if (key == OF_KEY_UP) {
+			float circlePosY_tmp = ofMap(mirrorPosY + ServoTilt_min + 1, ServoTilt_max, ServoTilt_min, borderTop, windowHeight - borderBottom);
+			if (circlePosY_tmp > borderTop) {
+				circlePosY[mirrorIndex] = circlePosY_tmp;
+			}
+			else {
+				circlePosY[mirrorIndex] = borderTop;
+			}
+		}
+		else if (key == OF_KEY_DOWN) {
+			float circlePosY_tmp = ofMap(mirrorPosY + ServoTilt_min - 1, ServoTilt_max, ServoTilt_min, borderTop, windowHeight - borderBottom);
+			if (circlePosY_tmp < (windowHeight - borderBottom)) {
+				circlePosY[mirrorIndex] = circlePosY_tmp;
+			}
+			else {
+				circlePosY[mirrorIndex] = windowHeight - borderBottom;
+			}
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -32,12 +212,39 @@ void ofApp::mouseMoved(int x, int y ){
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
+	if (PanalXY_MouseOver == true) {
+		int i_mirrorPosX = ofMap(x, borderLeft, windowWidth - borderRight, ServoPan_min, ServoPan_max) - (ServoPan_min  * 1.0);
+		int i_mirrorPosY = ofMap(y, borderTop, windowHeight - borderBottom, ServoTilt_max, ServoTilt_min) - (ServoTilt_min * 1.0);
 
+		float xTmp = ofMap(i_mirrorPosX + ServoPan_min, ServoPan_min, ServoPan_max, borderLeft, windowWidth - borderRight);
+		float yTmp = ofMap(i_mirrorPosY + ServoTilt_min, ServoTilt_max, ServoTilt_min, borderTop, windowHeight - borderBottom);
+
+		if ((xTmp < borderLeft)) {
+			circlePosX[mirrorIndex] = borderLeft;
+		}
+		else if (xTmp >(windowWidth - borderRight)) {
+			circlePosX[mirrorIndex] = windowWidth - borderRight;
+		}
+		else {
+			circlePosX[mirrorIndex] = xTmp;
+		}
+
+
+		if (yTmp < borderTop) {
+			circlePosY[mirrorIndex] = borderTop;
+		}
+		else if (yTmp >(windowHeight - borderBottom)) {
+			circlePosY[mirrorIndex] = windowHeight - borderBottom;
+		}
+		else {
+			circlePosY[mirrorIndex] = yTmp;
+		}
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-
+	PanalXY_MouseOver = checkMouseOver(x, y, circlePosX[mirrorIndex], circlePosY[mirrorIndex], circleRadius);
 }
 
 //--------------------------------------------------------------
@@ -68,4 +275,35 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
+}
+
+void  ofApp::drawCircle(float x, float y, float size, int HexColor, bool Active)
+{
+	ofSetHexColor(HexColor);
+	if (Active)
+	{
+		ofFill();
+		ofDrawCircle(x, y, size - 2);
+		ofNoFill();
+		ofDrawCircle(x, y, size);
+	}
+	else
+	{
+		ofFill();
+		ofDrawCircle(x, y, size);
+	}
+}
+
+bool  ofApp::checkMouseOver(float mousePosX, float mousePosY, float objPosX, float objPosY, float distRadius)
+{
+	float diffx = mousePosX - objPosX;
+	float diffy = mousePosY - objPosY;
+	float dist = sqrt(diffx*diffx + diffy*diffy);
+
+	if (dist < distRadius) {
+		return(true);
+	}
+	else {
+		return(false);
+	}
 }
