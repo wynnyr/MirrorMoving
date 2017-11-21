@@ -7,6 +7,8 @@
 Artnet artnet;
 EthernetClient client;
 
+//EthernetUDP Udp;
+
 const int ledPin1 = 3;
 const int ledPin2 = 5;
 const int btnPin1 = 6;
@@ -44,6 +46,8 @@ byte ip[]  = {192, 168, 1, 23};
 byte mac[] = {0x04, 0xE9, 0xE5, 0x00, 0x69, 0xEC};
 int DMX_universe = 0;
 int DMX_Addr     = 0;
+
+
 
 int  debugMode  = 0;
 int  servoError = -1;
@@ -84,7 +88,8 @@ void setup() {
   artnet.begin(mac, ip);
   artnet.setArtDmxCallback(onDmxFrame);
 
-  
+  //Ethernet.begin(mac, ip);
+  //Udp.begin(3000);
 }
 
 void loop() {
@@ -93,29 +98,41 @@ void loop() {
   artnet.read();
   ledBlink();
 
+  //int packetSize = Udp.parsePacket();
+  //if (packetSize)
+  //{
+  //  Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+  //  Udp.write(DmxdataRecv,4);
+  //  Udp.endPacket();
+  //}
+
   if (currentMillis_Main - previousMillis_Main >= 1){
     previousMillis_Main = currentMillis_Main;
 
-    //servoPan_target  = ceil(servoPan_Coarse_Target  + servoPan_Fine_Target);
-    //servoTilt_target = ceil(servoTilt_Coarse_Target + servoTilt_Fine_Target);
+    servoPan_target  = ceil(servoPan_Coarse_Target  + servoPan_Fine_Target);
+    servoTilt_target = ceil(servoTilt_Coarse_Target + servoTilt_Fine_Target);
 
-    //if(servoPan_target != servoPan_target_prev){
-    //  servoPan_target_prev = servoPan_target;
-    //  ff = 1;
-    //}
+    if(servoPan_target != servoPan_target_prev){
+      servoPan_target_prev = servoPan_target;
+      ff = 1;
+    }
 
-    //if(servoTilt_target != servoTilt_target_prev){
-    //  servoTilt_target_prev = servoTilt_target; 
-    //  ff = 1;
-    //}
+    if(servoTilt_target != servoTilt_target_prev){
+      servoTilt_target_prev = servoTilt_target; 
+      ff = 1;
+    }
 
-    if(Dmxsequence != DmxsequencePrev){
-      DmxsequencePrev = Dmxsequence;
+    //if(Dmxsequence != DmxsequencePrev){
+    //  DmxsequencePrev = Dmxsequence;
       //Serial.print("[Pan,Tilt] - [");
       //Serial.print(servoPan_target);
       //Serial.print(" , ");
       //Serial.print(servoTilt_target);
       //Serial.println("]");
+      //if(Dmxsequence != DmxsequencePrev){
+      //DmxsequencePrev = Dmxsequence;
+      if(ff==1){
+        ff=0;
       Serial.print("[DMX Data] - ");
       Serial.print(Dmxsequence);
       Serial.print(" [");
@@ -168,10 +185,10 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
     DmxdataRecv[2]= data[DMX_Addr+2];
     DmxdataRecv[3]= data[DMX_Addr+3];
 
-    //servoPan_Coarse_Target  = map(data[DMX_Addr],   0, 255, servoPanMin, servoPanMax);
-    //servoPan_Fine_Target    = map(data[DMX_Addr+1], 0, 255, 0, (servoPanMax - servoPanMin)/255.0);
-    //servoTilt_Coarse_Target = map(data[DMX_Addr+2], 0, 255, servoTiltMin, servoTiltMax);
-    //servoTilt_Fine_Target   = map(data[DMX_Addr+3], 0, 255, 0, (servoTiltMax - servoTiltMin)/255.0);
+    servoPan_Coarse_Target  = map(data[DMX_Addr],   0, 255, servoPanMin, servoPanMax);
+    servoPan_Fine_Target    = map(data[DMX_Addr+1], 0, 255, 0, (servoPanMax - servoPanMin)/255.0);
+    servoTilt_Coarse_Target = map(data[DMX_Addr+2], 0, 255, servoTiltMin, servoTiltMax);
+    servoTilt_Fine_Target   = map(data[DMX_Addr+3], 0, 255, 0, (servoTiltMax - servoTiltMin)/255.0);
     
     digitalWrite(ledPin2,LOW);
   }
