@@ -59,12 +59,13 @@ void ofApp::update(){
 	osc_mirrorPosX_Fine = ofMap(dmx_mirrorPosX_Fine, 0, 255, 0.0, 1.0);
 	osc_mirrorPosY_Fine = ofMap(dmx_mirrorPosY_Fine, 0, 255, 0.0, 1.0);
 
-	if (loop_send_count >= 1) {
-		loop_send_count = 0;
+	currentMillis_Main = ofGetElapsedTimeMillis();
+	
+	if ((currentMillis_Main - previousMillis_Main) > 10) {
+		previousMillis_Main = currentMillis_Main;
 
 		if (fsend == 1) {
 			fsend = 2;
-
 			if (osc_mirrorPosX_Coarse != osc_mirrorPosX_Coarse_prev) {
 				osc_mirrorPosX_Coarse_prev = osc_mirrorPosX_Coarse;
 				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 1));
@@ -74,7 +75,6 @@ void ofApp::update(){
 		}
 		else if (fsend == 2) {
 			fsend = 3;
-
 			if (osc_mirrorPosX_Fine != osc_mirrorPosX_Fine_prev) {
 				osc_mirrorPosX_Fine_prev = osc_mirrorPosX_Fine;
 				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 2));
@@ -84,7 +84,6 @@ void ofApp::update(){
 		}
 		else if (fsend == 3) {
 			fsend = 4;
-
 			if (osc_mirrorPosY_Coarse != osc_mirrorPosY_Coarse_prev) {
 				osc_mirrorPosY_Coarse_prev = osc_mirrorPosY_Coarse;
 				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 3));
@@ -93,7 +92,7 @@ void ofApp::update(){
 			}
 		}
 		else if (fsend == 4) {
-			fsend = 5;
+			fsend = 1;
 
 			if (osc_mirrorPosY_Fine != osc_mirrorPosY_Fine_prev) {
 				osc_mirrorPosY_Fine_prev = osc_mirrorPosY_Fine;
@@ -102,16 +101,13 @@ void ofApp::update(){
 				sender.sendMessage(m, false);
 			}
 		}
+		
 	}
-	else {
-		loop_send_count = loop_send_count + 1;
-	}
-
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	string buf[10];
+	string buf[20];
 	int txtPos = 20;
 
 	buf[0] = "osc to " + string(HOST) + string(":") + ofToString(PORT);
@@ -126,6 +122,9 @@ void ofApp::draw(){
 	buf[7] = "Error " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Error, 3) + string(",") + ofToString(ServoPosX_Error, 3) + "]";
 	buf[8] = "Error Check " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Error_Check, 3) + string(",") + ofToString(ServoPosY_Error_Check, 3) + "]";
 	buf[9] = "Servo Target" + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Total, 3) + string(",") + ofToString(ServoPosY_Total, 3) + "]";
+	
+	buf[19] = "time(ms)" + ofToString(currentMillis_Main);
+
 
 	ofSetHexColor(0xFFFFFF);
 
@@ -140,6 +139,9 @@ void ofApp::draw(){
 	ofDrawBitmapString(buf[7], 10, txtPos); txtPos = txtPos + 20;
 	ofDrawBitmapString(buf[8], 10, txtPos); txtPos = txtPos + 20;
 	ofDrawBitmapString(buf[9], 10, txtPos); txtPos = txtPos + 20;
+
+	ofDrawBitmapString(buf[19], 10, windowHeight - 15);
+	
 
 	ofNoFill();
 	ofSetHexColor(0xFFFFFF);
@@ -179,7 +181,6 @@ void ofApp::keyPressed(int key){
 				circlePosX[mirrorIndex] = windowWidth - borderRight;
 			}
 		}
-
 		if (key == OF_KEY_UP) {
 			float circlePosY_tmp = ofMap(mirrorPosY + ServoTilt_min + 1, ServoTilt_max, ServoTilt_min, borderTop, windowHeight - borderBottom);
 			if (circlePosY_tmp > borderTop) {
@@ -198,8 +199,7 @@ void ofApp::keyPressed(int key){
 				circlePosY[mirrorIndex] = windowHeight - borderBottom;
 			}
 		}
-
-		fsend = 1;
+		//fsend = 1;
 	}
 }
 
