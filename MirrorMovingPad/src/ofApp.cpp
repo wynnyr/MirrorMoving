@@ -110,37 +110,42 @@ void ofApp::draw(){
 	string buf[20];
 	int txtPos = 20;
 
-	buf[0] = "osc to " + string(HOST) + string(":") + ofToString(PORT);
-	buf[1] = "mirror " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(mirrorPosX, 3) + string(",") + ofToString(mirrorPosY, 3) + "]";
-
-	buf[2] = "OSC_X " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(osc_mirrorPosX_Coarse, 6) + string(",") + ofToString(osc_mirrorPosX_Fine, 6) + "]";
-	buf[3] = "OSC_Y " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(osc_mirrorPosY_Coarse, 6) + string(",") + ofToString(osc_mirrorPosY_Fine, 6) + "]";
-	buf[4] = "DMX_X " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(dmx_mirrorPosX_Coarse, 3) + string(",") + ofToString(dmx_mirrorPosX_Fine, 3) + "]";
-	buf[5] = "DMX_Y " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(dmx_mirrorPosY_Coarse, 3) + string(",") + ofToString(dmx_mirrorPosY_Fine, 3) + "]";
-
-	buf[6] = "Servo Coarse " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Coarse, 3) + string(",") + ofToString(ServoPosY_Coarse, 3) + "]";
-	buf[7] = "Error " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Error, 3) + string(",") + ofToString(ServoPosX_Error, 3) + "]";
-	buf[8] = "Error Check " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Error_Check, 3) + string(",") + ofToString(ServoPosY_Error_Check, 3) + "]";
-	buf[9] = "Servo Target" + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Total, 3) + string(",") + ofToString(ServoPosY_Total, 3) + "]";
-	
-	buf[19] = "time(ms)" + ofToString(currentMillis_Main);
-
-
 	ofSetHexColor(0xFFFFFF);
-
-
+	buf[0] = "osc to " + string(HOST) + string(":") + ofToString(PORT);
 	ofDrawBitmapString(buf[0], 10, txtPos); txtPos = txtPos + 20;
-	ofDrawBitmapString(buf[1], 10, txtPos); txtPos = txtPos + 20;
-	ofDrawBitmapString(buf[2], 10, txtPos); txtPos = txtPos + 20;
-	ofDrawBitmapString(buf[3], 10, txtPos); txtPos = txtPos + 20;
-	ofDrawBitmapString(buf[4], 10, txtPos); txtPos = txtPos + 20;
-	ofDrawBitmapString(buf[5], 10, txtPos); txtPos = txtPos + 20;
-	ofDrawBitmapString(buf[6], 10, txtPos); txtPos = txtPos + 20;
-	ofDrawBitmapString(buf[7], 10, txtPos); txtPos = txtPos + 20;
-	ofDrawBitmapString(buf[8], 10, txtPos); txtPos = txtPos + 20;
-	ofDrawBitmapString(buf[9], 10, txtPos); txtPos = txtPos + 20;
 
-	ofDrawBitmapString(buf[19], 10, windowHeight - 15);
+	if (bDebugMode) {
+		buf[1] = "mirror " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(mirrorPosX, 3) + string(",") + ofToString(mirrorPosY, 3) + "]";
+
+
+		buf[2] = "OSC_X " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(osc_mirrorPosX_Coarse, 6) + string(",") + ofToString(osc_mirrorPosX_Fine, 6) + "]";
+		buf[3] = "OSC_Y " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(osc_mirrorPosY_Coarse, 6) + string(",") + ofToString(osc_mirrorPosY_Fine, 6) + "]";
+		buf[4] = "DMX_X " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(dmx_mirrorPosX_Coarse, 3) + string(",") + ofToString(dmx_mirrorPosX_Fine, 3) + "]";
+		buf[5] = "DMX_Y " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(dmx_mirrorPosY_Coarse, 3) + string(",") + ofToString(dmx_mirrorPosY_Fine, 3) + "]";
+
+		buf[6] = "Servo Coarse " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Coarse, 3) + string(",") + ofToString(ServoPosY_Coarse, 3) + "]";
+		buf[7] = "Error " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Error, 3) + string(",") + ofToString(ServoPosX_Error, 3) + "]";
+		buf[8] = "Error Check " + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Error_Check, 3) + string(",") + ofToString(ServoPosY_Error_Check, 3) + "]";
+		buf[9] = "Servo Target" + ofToString(mirrorIndex + 1) + " Pos [" + ofToString(ServoPosX_Total, 3) + string(",") + ofToString(ServoPosY_Total, 3) + "]";
+
+		buf[19] = "time(ms)" + ofToString(currentMillis_Main);
+
+
+		
+
+		
+		ofDrawBitmapString(buf[1], 10, txtPos); txtPos = txtPos + 20;
+		ofDrawBitmapString(buf[2], 10, txtPos); txtPos = txtPos + 20;
+		ofDrawBitmapString(buf[3], 10, txtPos); txtPos = txtPos + 20;
+		ofDrawBitmapString(buf[4], 10, txtPos); txtPos = txtPos + 20;
+		ofDrawBitmapString(buf[5], 10, txtPos); txtPos = txtPos + 20;
+		ofDrawBitmapString(buf[6], 10, txtPos); txtPos = txtPos + 20;
+		ofDrawBitmapString(buf[7], 10, txtPos); txtPos = txtPos + 20;
+		ofDrawBitmapString(buf[8], 10, txtPos); txtPos = txtPos + 20;
+		ofDrawBitmapString(buf[9], 10, txtPos); txtPos = txtPos + 20;
+		ofDrawBitmapString(buf[19], 10, windowHeight - 15);
+	}
+	
 	
 
 	ofNoFill();
@@ -158,6 +163,11 @@ void ofApp::draw(){
 void ofApp::keyPressed(int key){
 	if (key >= '1' && key <= '9') {
 		mirrorIndex = key - '1';
+	}
+	
+
+	if (key == 'd' || key == 'D') {
+		bDebugMode = !bDebugMode;
 	}
 
 	if ((key == OF_KEY_LEFT) || (key == OF_KEY_RIGHT) || (key == OF_KEY_UP) || (key == OF_KEY_DOWN))

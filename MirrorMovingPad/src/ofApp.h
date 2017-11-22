@@ -34,6 +34,8 @@ class ofApp : public ofBaseApp{
 		uint64_t previousMillis_Main;
 		uint64_t currentMillis_Main;
 
+		bool bDebugMode = 0;
+
 		int fsend=1;
 
 		int mirrorPosX = 0;
@@ -48,7 +50,7 @@ class ofApp : public ofBaseApp{
 
 		int borderLeft = 30;
 		int borderRight = 30;
-		int borderTop = 80;
+		int borderTop = 40;
 		int borderBottom = 30;
 
 		int windowWidth;
