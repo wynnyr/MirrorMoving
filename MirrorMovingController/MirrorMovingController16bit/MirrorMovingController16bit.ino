@@ -21,6 +21,8 @@ int flagbtn1 = 0;
 const int servoPan = 1;
 const int servoTilt= 2;
 
+unsigned int servoTilt_moving = 0;
+unsigned int servoPan_moving  = 0;
 
 // Servo Position Limit
 int servoTiltMin = 0x0320; //800
@@ -77,6 +79,10 @@ void setup() {
   Dynamixel.servo(servoPan  ,servoPan_current, 0x100);
   Dynamixel.servo(servoTilt ,servoTilt_current,0x100); 
 
+  Dynamixel.setPID(servoPan, 10, 0.5, 1);
+  Dynamixel.setPID(servoTilt, 8, 0, 0);
+  
+
   //Dynamixel.setCMargin(servoPan,0,0);
   //Dynamixel.setCMargin(servoTilt,0,0);
   //Dynamixel.setCSlope(servoPan,254,254);
@@ -106,27 +112,24 @@ void loop() {
   if (currentMillis_Main - previousMillis_Main > 10){
     previousMillis_Main = currentMillis_Main;
 
+    servoPan_moving = Dynamixel.checkMovement(servoPan);
+    if(servoPan_moving == 0){
+      int r_servoPan  = Dynamixel.readPosition(servoPan);
+      int r_servoTilt = Dynamixel.readPosition(servoTilt);
     
-    if(servoPan_current < servoPan_target ){
-      servoPan_current = servoPan_current+1;
-    }
-    else if(servoPan_current > servoPan_target ){
-      servoPan_current = servoPan_current-1;
-    }
+      Serial.print("-[Pan,Tilt Current] - [");
+      Serial.print(r_servoPan);
+      Serial.print(" , ");
+      Serial.print(r_servoTilt);
+      Serial.println("]");
+   }
 
-    if(servoTilt_current < servoTilt_target){
-      servoTilt_current = servoTilt_current + 1; 
-    }
-    else if(servoTilt_current > servoTilt_target){
-      servoTilt_current = servoTilt_current - 1; 
-    }
+    //Dynamixel.servo(servoPan, servoPan_target,0);
+    //Dynamixel.servo(servoTilt, servoTilt_target,0);
 
-    Dynamixel.servo(servoPan ,  servoPan_current,1023) ;
-    Dynamixel.servo(servoTilt , servoTilt_current,1023) ;
-
-
-    if(servoPan_target != servoPan_target_prev){
+   if(servoPan_target != servoPan_target_prev){
       servoPan_target_prev = servoPan_target;
+      Dynamixel.servo(servoPan, servoPan_target,0);
       ff = 1;
     }
 
@@ -137,7 +140,7 @@ void loop() {
 
     if(ff == 1){
       ff = 0;
-      Serial.print("[Pan,Tilt] - [");
+      Serial.print("[Pan,Tilt Target] - [");
       Serial.print(servoPan_target);
       Serial.print(" , ");
       Serial.print(servoTilt_target);
@@ -152,12 +155,7 @@ void loop() {
       Serial.print(DmxdataRecv[3]);
       Serial.println("]");
     }
-
-
-
-
-  }
-
+}
   if (digitalRead(btnPin1) == LOW && flagbtn1 == 0){
       flagbtn1 = 1;
     }
