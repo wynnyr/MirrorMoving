@@ -9,10 +9,10 @@ void ofApp::setup(){
 	sender.setup(HOST, PORT);
 
 
-	ServoPan_min  = 204;
-	ServoPan_max  = 820;
-	ServoTilt_min = 622;
-	ServoTilt_max = 704;
+	ServoPan_min  = 0x02CF;   //764
+	ServoPan_max  = 0x0ACF;  //2764
+	ServoTilt_min = 0x0320;  //800
+	ServoTilt_max = 0x041F;  //1055
 
 	windowWidth = ofGetWindowWidth();
 	windowHeight = ofGetWindowHeight();
@@ -22,7 +22,7 @@ void ofApp::setup(){
 
 	for (int i = 0; i < 9; i++) {
 		circlePosX[i] = ofMap(ServoPan_min + ((ServoPan_max - ServoPan_min)   * 0.5), ServoPan_min, ServoPan_max, borderLeft, windowWidth - borderRight);
-		circlePosY[i] = ofMap(ServoTilt_min + ((ServoTilt_max - ServoTilt_min) * 0.5), ServoTilt_max, ServoTilt_min, borderTop, windowHeight - borderBottom);
+		circlePosY[i] = ofMap(ServoTilt_min + ((ServoTilt_max - ServoTilt_min) * 0.5), ServoTilt_min, ServoTilt_max, borderTop, windowHeight - borderBottom);
 	}
 }
 
@@ -34,13 +34,13 @@ void ofApp::update(){
 	windowHeight = ofGetWindowHeight();
 
 	mirrorPosX = ofMap(circlePosX[mirrorIndex], borderLeft, windowWidth - borderRight, ServoPan_min, ServoPan_max) - (ServoPan_min  * 1.0);
-	mirrorPosY = ofMap(circlePosY[mirrorIndex], borderTop, windowHeight - borderBottom, ServoTilt_max, ServoTilt_min) - (ServoTilt_min * 1.0);
+	mirrorPosY = ofMap(circlePosY[mirrorIndex], borderTop, windowHeight - borderBottom, ServoTilt_min, ServoTilt_max ) - (ServoTilt_min * 1.0);
 
 	dmx_mirrorPosX_Coarse = ofMap(mirrorPosX, 0, Servo_Pan_Res, 0, 255);
 	dmx_mirrorPosY_Coarse = ofMap(mirrorPosY, 0, Servo_Tilt_Res, 0, 255);
 
 	ServoPosX_Coarse = ofMap(dmx_mirrorPosX_Coarse, 0, 255, ServoPan_min, ServoPan_max) - (ServoPan_min  * 1.0);
-	ServoPosY_Coarse = ofMap(dmx_mirrorPosY_Coarse, 255, 0, ServoTilt_max, ServoTilt_min) - (ServoTilt_min * 1.0);
+	ServoPosY_Coarse = ofMap(dmx_mirrorPosY_Coarse, 0, 255, ServoTilt_min, ServoTilt_max) - (ServoTilt_min * 1.0);
 
 	ServoPosX_Error = mirrorPosX - ServoPosX_Coarse;
 	ServoPosY_Error = mirrorPosY - ServoPosY_Coarse;
@@ -182,7 +182,7 @@ void ofApp::keyPressed(int key){
 			}
 		}
 		if (key == OF_KEY_UP) {
-			float circlePosY_tmp = ofMap(mirrorPosY + ServoTilt_min + 1, ServoTilt_max, ServoTilt_min, borderTop, windowHeight - borderBottom);
+			float circlePosY_tmp = ofMap(mirrorPosY + ServoTilt_min - 1, ServoTilt_min, ServoTilt_max, borderTop, windowHeight - borderBottom);
 			if (circlePosY_tmp > borderTop) {
 				circlePosY[mirrorIndex] = circlePosY_tmp;
 			}
@@ -191,7 +191,7 @@ void ofApp::keyPressed(int key){
 			}
 		}
 		else if (key == OF_KEY_DOWN) {
-			float circlePosY_tmp = ofMap(mirrorPosY + ServoTilt_min - 1, ServoTilt_max, ServoTilt_min, borderTop, windowHeight - borderBottom);
+			float circlePosY_tmp = ofMap(mirrorPosY + ServoTilt_min + 1, ServoTilt_min, ServoTilt_max, borderTop, windowHeight - borderBottom);
 			if (circlePosY_tmp < (windowHeight - borderBottom)) {
 				circlePosY[mirrorIndex] = circlePosY_tmp;
 			}
@@ -199,7 +199,7 @@ void ofApp::keyPressed(int key){
 				circlePosY[mirrorIndex] = windowHeight - borderBottom;
 			}
 		}
-		//fsend = 1;
+
 	}
 }
 
@@ -217,10 +217,10 @@ void ofApp::mouseMoved(int x, int y ){
 void ofApp::mouseDragged(int x, int y, int button){
 	if (PanalXY_MouseOver == true) {
 		int i_mirrorPosX = ofMap(x, borderLeft, windowWidth - borderRight, ServoPan_min, ServoPan_max) - (ServoPan_min  * 1.0);
-		int i_mirrorPosY = ofMap(y, borderTop, windowHeight - borderBottom, ServoTilt_max, ServoTilt_min) - (ServoTilt_min * 1.0);
+		int i_mirrorPosY = ofMap(y, borderTop, windowHeight - borderBottom, ServoTilt_min, ServoTilt_max) - (ServoTilt_min * 1.0);
 
 		float xTmp = ofMap(i_mirrorPosX + ServoPan_min, ServoPan_min, ServoPan_max, borderLeft, windowWidth - borderRight);
-		float yTmp = ofMap(i_mirrorPosY + ServoTilt_min, ServoTilt_max, ServoTilt_min, borderTop, windowHeight - borderBottom);
+		float yTmp = ofMap(i_mirrorPosY + ServoTilt_min, ServoTilt_min, ServoTilt_max, borderTop, windowHeight - borderBottom);
 
 		if ((xTmp < borderLeft)) {
 			circlePosX[mirrorIndex] = borderLeft;
@@ -252,7 +252,7 @@ void ofApp::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-	fsend = 1;
+
 }
 
 //--------------------------------------------------------------
