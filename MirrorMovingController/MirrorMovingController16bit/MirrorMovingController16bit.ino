@@ -57,7 +57,12 @@ int  ledBlinkCount = 0;
 unsigned long previousMillis = 0;
 unsigned long previousMillis_Main = 0;
 
+unsigned long previousMillis_A1 = 0;
+
 int ff=0;
+int gg=0;
+int aa=0;
+int bb=0;
 
 byte DmxdataRecv[] = {0,0,0,0};
 byte Dmxsequence = 0;
@@ -75,13 +80,25 @@ void setup() {
   Serial.begin(9600);
   Dynamixel.begin(1000000);
   Dynamixel.setDirectionPin(2);
+
+  //Dynamixel.setStatusPaket(servoPan, NONE);
+  //Dynamixel.setStatusPaket(servoTilt, NONE);
+  Dynamixel.setStatusPaketReturnDelay(servoPan, 6); 
+  Dynamixel.setStatusPaketReturnDelay(servoTilt, 6); 
   
+  Dynamixel.setPunch(servoPan, 0);
+  Dynamixel.setPunch(servoTilt,0);
+  Dynamixel.setHoldingTorque(servoPan, false);
+  Dynamixel.setHoldingTorque(servoTilt, false);
+  //Dynamixel.setPID(servoPan,  2, 6, 1);
+  //Dynamixel.setPID(servoTilt, 2, 8, 5);
+
+  Dynamixel.setPID(servoPan,  4, 0, 0);
+  Dynamixel.setPID(servoTilt, 64, 0, 0);
   Dynamixel.servo(servoPan  ,servoPan_current, 0x100);
   Dynamixel.servo(servoTilt ,servoTilt_current,0x100); 
 
-  Dynamixel.setPID(servoPan, 10, 0.5, 1);
-  Dynamixel.setPID(servoTilt, 8, 0, 0);
-  
+ 
 
   //Dynamixel.setCMargin(servoPan,0,0);
   //Dynamixel.setCMargin(servoTilt,0,0);
@@ -109,35 +126,21 @@ void loop() {
   //  Udp.endPacket();
   //}
 
-  if (currentMillis_Main - previousMillis_Main > 10){
+  if (currentMillis_Main - previousMillis_Main > 5){
     previousMillis_Main = currentMillis_Main;
-
-    servoPan_moving = Dynamixel.checkMovement(servoPan);
-    if(servoPan_moving == 0){
-      int r_servoPan  = Dynamixel.readPosition(servoPan);
-      int r_servoTilt = Dynamixel.readPosition(servoTilt);
-    
-      Serial.print("-[Pan,Tilt Current] - [");
-      Serial.print(r_servoPan);
-      Serial.print(" , ");
-      Serial.print(r_servoTilt);
-      Serial.println("]");
-   }
-
-    //Dynamixel.servo(servoPan, servoPan_target,0);
-    //Dynamixel.servo(servoTilt, servoTilt_target,0);
 
    if(servoPan_target != servoPan_target_prev){
       servoPan_target_prev = servoPan_target;
       Dynamixel.servo(servoPan, servoPan_target,0);
-      ff = 1;
     }
 
     if(servoTilt_target != servoTilt_target_prev){
-      servoTilt_target_prev = servoTilt_target; 
-      ff = 1;
-    }
+      servoTilt_target_prev = servoTilt_target;
+      Dynamixel.servo(servoTilt, servoTilt_target,500);
 
+    }
+ 
+/*
     if(ff == 1){
       ff = 0;
       Serial.print("[Pan,Tilt Target] - [");
@@ -155,14 +158,42 @@ void loop() {
       Serial.print(DmxdataRecv[3]);
       Serial.println("]");
     }
+*/
 }
+
   if (digitalRead(btnPin1) == LOW && flagbtn1 == 0){
       flagbtn1 = 1;
-    }
+      int r_servoPan  = Dynamixel.readPosition(servoPan);
+      delay(2);
+      int r_servoTilt = Dynamixel.readPosition(servoTilt);
+      delay(2);
+      Serial.print("[Pan,Tilt Target] - [");
+      Serial.print(servoPan_target);
+      Serial.print(" , ");
+      Serial.print(servoTilt_target);
+      Serial.print("]");
+      Serial.print("-[Pan,Tilt Current] - [");
+      Serial.print(r_servoPan);
+      Serial.print(" , ");
+      Serial.print(r_servoTilt);
+      Serial.println("]");
+      /*
+      Serial.print("-[DMX Data] - [");
+      Serial.print(DmxdataRecv[0]);
+      Serial.print(" ");
+      Serial.print(DmxdataRecv[1]);
+      Serial.print(" ");
+      Serial.print(DmxdataRecv[2]);
+      Serial.print(" ");
+      Serial.print(DmxdataRecv[3]);
+      Serial.println("]");
+      */
+  }
 
-    if (digitalRead(btnPin2) == LOW && flagbtn1 == 1){
-      flagbtn1 = 0;
-    }
+  if (digitalRead(btnPin2) == LOW && flagbtn1 == 1){
+     flagbtn1 = 0;
+  }
+  
 }
 
 void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* data)
@@ -177,10 +208,11 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
     servoPan_Coarse_Target  = map(data[DMX_Addr],   0, 255, servoPanMin, servoPanMax);
     servoPan_Fine_Target    = map(data[DMX_Addr+1], 0, 255, 0, (servoPanMax - servoPanMin)/255.0);
     servoTilt_Coarse_Target = map(data[DMX_Addr+2], 0, 255, servoTiltMin, servoTiltMax);
-    servoTilt_Fine_Target   = map(data[DMX_Addr+3], 0, 255, 0, (servoTiltMax - servoTiltMin)/255.0);
+    //servoTilt_Fine_Target   = map(data[DMX_Addr+3], 0, 255, 0, (servoTiltMax - servoTiltMin)/255.0);
 
     servoPan_target  = ceil(servoPan_Coarse_Target  + servoPan_Fine_Target);
-    servoTilt_target = ceil(servoTilt_Coarse_Target + servoTilt_Fine_Target);
+    //servoTilt_target = ceil(servoTilt_Coarse_Target + servoTilt_Fine_Target);
+    servoTilt_target = servoTilt_Coarse_Target;
     
     digitalWrite(ledPin2,LOW);
   }
