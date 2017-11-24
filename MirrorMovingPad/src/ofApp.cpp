@@ -65,41 +65,43 @@ void ofApp::update(){
 		previousMillis_Main = currentMillis_Main;
 
 		if (fsend == 1) {
-			fsend = 2;
+			
 			if (osc_mirrorPosX_Coarse != osc_mirrorPosX_Coarse_prev) {
 				osc_mirrorPosX_Coarse_prev = osc_mirrorPosX_Coarse;
 				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 1));
 				m.addFloatArg(osc_mirrorPosX_Coarse);
 				sender.sendMessage(m, false);
 			}
+			fsend = 2;
 		}
 		else if (fsend == 2) {
-			fsend = 3;
+			
 			if (osc_mirrorPosX_Fine != osc_mirrorPosX_Fine_prev) {
 				osc_mirrorPosX_Fine_prev = osc_mirrorPosX_Fine;
 				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 2));
 				m.addFloatArg(osc_mirrorPosX_Fine);
 				sender.sendMessage(m, false);
 			}
+			fsend = 3;
 		}
 		else if (fsend == 3) {
-			fsend = 4;
+			
 			if (osc_mirrorPosY_Coarse != osc_mirrorPosY_Coarse_prev) {
 				osc_mirrorPosY_Coarse_prev = osc_mirrorPosY_Coarse;
 				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 3));
 				m.addFloatArg(osc_mirrorPosY_Coarse);
 				sender.sendMessage(m, false);
 			}
+			fsend = 4;
 		}
 		else if (fsend == 4) {
-			fsend = 1;
-
 			if (osc_mirrorPosY_Fine != osc_mirrorPosY_Fine_prev) {
 				osc_mirrorPosY_Fine_prev = osc_mirrorPosY_Fine;
 				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 4));
 				m.addFloatArg(osc_mirrorPosY_Fine);
 				sender.sendMessage(m, false);
 			}
+			fsend = 1;
 		}
 		
 	}
@@ -155,7 +157,37 @@ void ofApp::draw(){
 	ofDrawRectangle(borderLeft, borderTop, windowWidth - (borderLeft + borderRight), windowHeight - (borderTop + borderBottom));
 	ofDrawLine(circlePosX[mirrorIndex], borderTop, circlePosX[mirrorIndex], windowHeight - borderBottom);
 	ofDrawLine(borderLeft, circlePosY[mirrorIndex], windowWidth - borderRight, circlePosY[mirrorIndex]);
-	drawCircle(circlePosX[mirrorIndex], circlePosY[mirrorIndex], circleRadius, 0xFF00FF, false);
+
+	//Draw Slide Rectangle
+	ofDrawRectangle(windowWidth - 32, borderTop, 16, windowHeight - (borderTop + borderBottom));
+	ofDrawRectangle(borderLeft, windowHeight - 32, windowWidth - (borderLeft + borderRight), 16);
+	ofDrawLine(windowWidth - 32, SlideVer[mirrorIndex], windowWidth - 16, SlideVer[mirrorIndex]);
+	ofDrawLine(SlideHor[mirrorIndex], windowHeight - 32, SlideHor[mirrorIndex], windowHeight - 16);
+
+
+
+	//Draw Circle Position
+	if (ObjSelect == 1) {
+		drawCircle(circlePosX[mirrorIndex], circlePosY[mirrorIndex], circleRadius, 0xFF00FF, true);
+		drawCircle(windowWidth - 24, SlideVer[mirrorIndex], 6, slideColor1, false);
+		drawCircle(SlideHor[mirrorIndex], windowHeight - 24, 6, slideColor2, false);
+	}
+	else if (ObjSelect == 2) {
+		drawCircle(circlePosX[mirrorIndex], circlePosY[mirrorIndex], circleRadius, 0xFF00FF, false);
+		drawCircle(windowWidth - 24, SlideVer[mirrorIndex], 6, slideColor1, true);
+		drawCircle(SlideHor[mirrorIndex], windowHeight - 24, 6, slideColor2, false);
+	}
+	else if (ObjSelect == 3) {
+		drawCircle(circlePosX[mirrorIndex], circlePosY[mirrorIndex], circleRadius, 0xFF00FF, false);
+		drawCircle(windowWidth - 24, SlideVer[mirrorIndex], 6, slideColor1, false);
+		drawCircle(SlideHor[mirrorIndex], windowHeight - 24, 6, slideColor2, true);
+	}
+	else {
+		drawCircle(circlePosX[mirrorIndex], circlePosY[mirrorIndex], circleRadius, 0xFF00FF, false);
+		drawCircle(windowWidth - 24, SlideVer[mirrorIndex], 6, slideColor1, false);
+		drawCircle(SlideHor[mirrorIndex], windowHeight - 24, 6, slideColor2, false);
+
+	}
 
 }
 
@@ -253,11 +285,36 @@ void ofApp::mouseDragged(int x, int y, int button){
 			circlePosY[mirrorIndex] = yTmp;
 		}
 	}
+	else if (SlideVer_MouseOver == true) {
+		if ((y >= borderTop) && y <= (windowHeight - borderBottom)) {
+			SlideVer[mirrorIndex] = y;
+		}
+	}
+	else if (SlideHor_MouseOver == true) {
+		if ((x >= borderLeft) && x <= (windowWidth - borderRight)) {
+			SlideHor[mirrorIndex] = x;
+		}
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
 	PanalXY_MouseOver = checkMouseOver(x, y, circlePosX[mirrorIndex], circlePosY[mirrorIndex], circleRadius);
+
+	PanalXY_MouseOver = checkMouseOver(x, y, circlePosX[mirrorIndex], circlePosY[mirrorIndex], circleRadius);
+	SlideVer_MouseOver = checkMouseOver(x, y, windowWidth - 24, SlideVer[mirrorIndex], circleRadius);
+	SlideHor_MouseOver = checkMouseOver(x, y, SlideHor[mirrorIndex], windowHeight - 24, circleRadius);
+
+	if (PanalXY_MouseOver) {
+		ObjSelect = 1;
+	}
+
+	else if (SlideVer_MouseOver) {
+		ObjSelect = 2;
+	}
+	else if (SlideHor_MouseOver) {
+		ObjSelect = 3;
+	}
 }
 
 //--------------------------------------------------------------
@@ -292,6 +349,8 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 void  ofApp::drawCircle(float x, float y, float size, int HexColor, bool Active)
 {
+	
+	
 	ofSetHexColor(HexColor);
 	if (Active)
 	{

@@ -46,6 +46,11 @@ class ofApp : public ofBaseApp{
 		float circlePosX[9] = { 0,0,0,0,0,0,0,0,0 };
 		float circlePosY[9] = { 0,0,0,0,0,0,0,0,0 };
 
+		float SlideVer[9] = { 0,0,0,0,0,0,0,0,0 };
+		float SlideHor[9] = { 0,0,0,0,0,0,0,0,0 };
+
+		bool SlideVer_MouseOver = false;
+		bool SlideHor_MouseOver = false;
 		bool PanalXY_MouseOver = false;
 
 		int borderLeft = 30;
@@ -98,4 +103,8 @@ class ofApp : public ofBaseApp{
 
 		float ServoPosX_Error_Check;
 		float ServoPosY_Error_Check;
+
+		int ObjSelect = 0;
+		int slideColor1 = 0x2200FF;
+		int slideColor2 = 0x2200FF;
 };
