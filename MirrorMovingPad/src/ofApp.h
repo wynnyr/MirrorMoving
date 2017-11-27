@@ -41,27 +41,38 @@ class ofApp : public ofBaseApp{
 		int mirrorPosX = 0;
 		int mirrorPosY = 0;
 
-		int   mirrorIndex = 0;
-		int	  circleRadius = 12;
-		float circlePosX[9] = { 0,0,0,0,0,0,0,0,0 };
-		float circlePosY[9] = { 0,0,0,0,0,0,0,0,0 };
-
-		float SlideVer[9] = { 0,0,0,0,0,0,0,0,0 };
-		float SlideHor[9] = { 0,0,0,0,0,0,0,0,0 };
-
-		bool SlideVer_MouseOver = false;
-		bool SlideHor_MouseOver = false;
-		bool PanalXY_MouseOver = false;
-
 		int borderLeft = 30;
-		int borderRight = 30;
+		int borderRight = 50;
 		int borderTop = 40;
-		int borderBottom = 30;
+		int borderBottom = 50;
 
 		int windowWidth;
 		int windowHeight;
 		int window_W_Res;
 		int window_H_Res;
+
+		int   mirrorIndex = 0;
+		int	  circleRadius = 10;
+
+		int DMX_Pan_Coarse[9]  = { 0,0,0,0,0,0,0,0,0 };
+		int DMX_Tilt_Coarse[9] = { 0,0,0,0,0,0,0,0,0 };
+		int DMX_Pan_Fine[9]    = { 0,0,0,0,0,0,0,0,0 };
+		int DMX_Tilt_Fine[9]   = { 0,0,0,0,0,0,0,0,0 };
+
+		float circlePosX;
+		float circlePosY;
+
+		float SlideX;
+		float SlideY;
+
+
+		bool SlideX_MouseOver  = false;
+		bool SlideY_MouseOver  = false;
+		bool PanalXY_MouseOver = false;
+
+		int ObjSelect = 0;
+		int slideColor1 = 0x2200FF;
+		int slideColor2 = 0x2200FF;
 
 		int drawFirst = 0;
 
@@ -87,11 +98,6 @@ class ofApp : public ofBaseApp{
 		float f_mirrorPosX_Coarse;
 		float f_mirrorPosY_Coarse;
 
-		int   dmx_mirrorPosX_Coarse;
-		int   dmx_mirrorPosY_Coarse;
-		int   dmx_mirrorPosX_Fine;
-		int   dmx_mirrorPosY_Fine;
-
 		float ServoPosX_Total;
 		float ServoPosY_Total;
 		float ServoPosX_Coarse;
@@ -103,8 +109,4 @@ class ofApp : public ofBaseApp{
 
 		float ServoPosX_Error_Check;
 		float ServoPosY_Error_Check;
-
-		int ObjSelect = 0;
-		int slideColor1 = 0x2200FF;
-		int slideColor2 = 0x2200FF;
 };
