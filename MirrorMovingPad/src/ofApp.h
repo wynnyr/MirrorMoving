@@ -34,37 +34,33 @@ class ofApp : public ofBaseApp{
 		uint64_t previousMillis_Main;
 		uint64_t currentMillis_Main;
 
+		bool DMX16bit_Mode = false;
 		bool bDebugMode = 0;
 
 		int fsend=1;
 
-		int mirrorPosX = 0;
-		int mirrorPosY = 0;
-
-		int borderLeft = 30;
-		int borderRight = 50;
-		int borderTop = 40;
-		int borderBottom = 50;
+		int borderLeft ;
+		int borderRight;
+		int borderTop;
+		int borderBottom;
 
 		int windowWidth;
 		int windowHeight;
 		int window_W_Res;
 		int window_H_Res;
 
-		int   mirrorIndex = 0;
-		int	  circleRadius = 10;
-
+		
 		int DMX_Pan_Coarse[9]  = { 0,0,0,0,0,0,0,0,0 };
 		int DMX_Tilt_Coarse[9] = { 0,0,0,0,0,0,0,0,0 };
 		int DMX_Pan_Fine[9]    = { 0,0,0,0,0,0,0,0,0 };
 		int DMX_Tilt_Fine[9]   = { 0,0,0,0,0,0,0,0,0 };
 
+		int   mirrorIndex  = 0;
+		int	  circleRadius = 10;
 		float circlePosX;
 		float circlePosY;
-
 		float SlideX;
 		float SlideY;
-
 
 		bool SlideX_MouseOver  = false;
 		bool SlideY_MouseOver  = false;
@@ -86,17 +82,14 @@ class ofApp : public ofBaseApp{
 		int	Servo_Tilt_Res;
 
 		float osc_mirrorPosX_Coarse = 0;
-		float osc_mirrorPosX_Fine = 0;
+		float osc_mirrorPosX_Fine   = 0;
 		float osc_mirrorPosY_Coarse = 0;
-		float osc_mirrorPosY_Fine = 0;
+		float osc_mirrorPosY_Fine   = 0;
 
 		float osc_mirrorPosX_Coarse_prev = 0;
-		float osc_mirrorPosX_Fine_prev = 0;
+		float osc_mirrorPosX_Fine_prev   = 0;
 		float osc_mirrorPosY_Coarse_prev = 0;
-		float osc_mirrorPosY_Fine_prev = 0;
-
-		float f_mirrorPosX_Coarse;
-		float f_mirrorPosY_Coarse;
+		float osc_mirrorPosY_Fine_prev   = 0;
 
 		float ServoPosX_Total;
 		float ServoPosY_Total;
@@ -104,9 +97,5 @@ class ofApp : public ofBaseApp{
 		float ServoPosY_Coarse;
 		float ServoPosX_Fine;
 		float ServoPosY_Fine;
-		float ServoPosX_Error;
-		float ServoPosY_Error;
 
-		float ServoPosX_Error_Check;
-		float ServoPosY_Error_Check;
 };
