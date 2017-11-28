@@ -33,14 +33,13 @@ int servoPanMax  = 0x0ACF; //2767
 int servoTilt_current = 0x03D0; //976
 int servoPan_current  = 0x06EC; //1764;
 
-int servoTilt_target  = servoTilt_current;
-int servoPan_target   = servoPan_current;
+int servoTilt_target      = servoTilt_current;
+int servoPan_target       = servoPan_current;
 int servoTilt_target_prev = servoTilt_target;
 int servoPan_target_prev  = servoPan_target;
 
 float servoPan_Coarse_Target  = servoPan_current;
 float servoTilt_Coarse_Target = servoTilt_current;
-
 float servoPan_Fine_Target  = 0.0;
 float servoTilt_Fine_Target = 0.0;
 
@@ -57,14 +56,10 @@ int  ledBlinkCount = 0;
 unsigned long previousMillis = 0;
 unsigned long previousMillis_Main = 0;
 
-unsigned long previousMillis_A1 = 0;
-
-int ff=0;
-int gg=0;
-int aa=0;
-int bb=0;
+unsigned long previousMillis_recv = 0;
 
 byte DmxdataRecv[] = {0,0,0,0};
+byte DmxdataRecvPrev[] = {0,0,0,0};
 byte Dmxsequence = 0;
 byte DmxsequencePrev = 0;
 
@@ -83,15 +78,15 @@ void setup() {
 
   //Dynamixel.setStatusPaket(servoPan, NONE);
   //Dynamixel.setStatusPaket(servoTilt, NONE);
-  Dynamixel.setStatusPaketReturnDelay(servoPan, 6); 
+  Dynamixel.setStatusPaketReturnDelay(servoPan,  6); 
   Dynamixel.setStatusPaketReturnDelay(servoTilt, 6); 
   
   Dynamixel.setPunch(servoPan, 0);
   Dynamixel.setPunch(servoTilt,0);
-  Dynamixel.setHoldingTorque(servoPan, false);
+  Dynamixel.setHoldingTorque(servoPan,  false);
   Dynamixel.setHoldingTorque(servoTilt, false);
 
-  Dynamixel.setPID(servoPan,  4, 0, 0);
+  Dynamixel.setPID(servoPan,  6, 0, 0);
   Dynamixel.setPID(servoTilt, 20, 0, 0);
   Dynamixel.servo(servoPan  ,servoPan_current, 0x100);
   Dynamixel.servo(servoTilt ,servoTilt_current,0x100); 
@@ -106,6 +101,64 @@ void loop() {
   artnet.read();
   ledBlink();
 
+  if (Dmxsequence != DmxsequencePrev){
+     unsigned long time_recv = millis();
+     DmxsequencePrev = Dmxsequence;
+
+     if(time_recv > previousMillis_recv){
+        unsigned long difftime_recv = time_recv - previousMillis_recv;
+        
+        if(difftime_recv > 0){
+            float diffDmx1 = abs(DmxdataRecv[0]-DmxdataRecvPrev[0]);
+            float diffDmx2 = abs(DmxdataRecv[1]-DmxdataRecvPrev[1]);
+            
+            float ratio1 = diffDmx1/difftime_recv;
+            float ratio2 = diffDmx1/difftime_recv;
+
+
+            if(ratio1>0.1){
+              Dynamixel.setPID(servoPan, 16,1,2);
+            }
+            else if(ratio1>0.02){
+              Dynamixel.setPID(servoPan, 8,1,2);
+            }
+            else if(ratio1>0.01){
+              Dynamixel.setPID(servoPan, 4,1,2);
+            }
+            else if(ratio1>0.00){
+              Dynamixel.setPID(servoPan, 4,0,0);
+            }
+
+            if(ratio2>0.1){
+              Dynamixel.setPID(servoTilt,20,0,1);
+            }
+            else if(ratio2>0.02){
+              Dynamixel.setPID(servoTilt,12,0,1);
+            }
+            else if(ratio2>0.01){
+              Dynamixel.setPID(servoTilt,10,0,1);
+            }
+            else if(ratio2>0.00){
+              Dynamixel.setPID(servoTilt,10,0,1);
+            }
+            
+            previousMillis_recv = time_recv;
+            Serial.print(" t=");
+            Serial.print(difftime_recv);
+            Serial.print(" r1=");
+            Serial.print(ratio1,4);
+            Serial.print(" r2=");
+            Serial.println(ratio2,4);
+        
+        }
+        
+     }
+     
+     previousMillis_recv = time_recv;
+     DmxdataRecvPrev[0] = DmxdataRecv[0];
+     DmxdataRecvPrev[1] = DmxdataRecv[1];
+  }
+
   if (currentMillis_Main - previousMillis_Main > 5){
     previousMillis_Main = currentMillis_Main;
 
@@ -117,10 +170,10 @@ void loop() {
     if(servoTilt_target != servoTilt_target_prev){
       servoTilt_target_prev = servoTilt_target;
       Dynamixel.servo(servoTilt, servoTilt_target,100);
-
     }
+  }  
 
-}  if (digitalRead(btnPin1) == LOW && flagbtn1 == 0){
+  if (digitalRead(btnPin1) == LOW && flagbtn1 == 0){
       flagbtn1 = 1;
       int r_servoPan  = Dynamixel.readPosition(servoPan);
       delay(2);
@@ -165,8 +218,8 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
     DmxdataRecv[3]= data[DMX_Addr+3];
 
     servoPan_Coarse_Target  = map(data[DMX_Addr],   0, 255, servoPanMin, servoPanMax);
-    servoPan_Fine_Target    = map(data[DMX_Addr+1], 0, 255, 0, (servoPanMax - servoPanMin)/255.0);
-    servoTilt_Coarse_Target = map(data[DMX_Addr+2], 0, 255, servoTiltMin, servoTiltMax);
+    servoTilt_Coarse_Target = map(data[DMX_Addr+1], 0, 255, servoTiltMin, servoTiltMax);
+    servoPan_Fine_Target    = map(data[DMX_Addr+2], 0, 255, 0, (servoPanMax - servoPanMin)/255.0);
     servoTilt_Fine_Target   = map(data[DMX_Addr+3], 0, 255, 0, (servoTiltMax - servoTiltMin)/255.0);
 
     servoPan_target  = ceil(servoPan_Coarse_Target  + servoPan_Fine_Target);
