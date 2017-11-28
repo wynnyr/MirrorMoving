@@ -34,7 +34,7 @@ class ofApp : public ofBaseApp{
 		uint64_t previousMillis_Main;
 		uint64_t currentMillis_Main;
 
-		bool DMX16bit_Mode = false;
+		bool DMX16bit_Mode = true;
 		bool bDebugMode = 0;
 
 		int fsend=1;

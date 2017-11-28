@@ -84,7 +84,7 @@ void ofApp::update(){
 			
 			if (osc_mirrorPosX_Coarse != osc_mirrorPosX_Coarse_prev) {
 				osc_mirrorPosX_Coarse_prev = osc_mirrorPosX_Coarse;
-				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 1));
+				m.setAddress("/dmx/mp");
 				m.addFloatArg(osc_mirrorPosX_Coarse);
 				sender.sendMessage(m, false);
 			}
@@ -94,7 +94,7 @@ void ofApp::update(){
 
 			if (osc_mirrorPosY_Coarse != osc_mirrorPosY_Coarse_prev) {
 				osc_mirrorPosY_Coarse_prev = osc_mirrorPosY_Coarse;
-				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 3));
+				m.setAddress("/dmx/mt");
 				m.addFloatArg(osc_mirrorPosY_Coarse);
 				sender.sendMessage(m, false);
 			}
@@ -110,7 +110,7 @@ void ofApp::update(){
 			
 			if (osc_mirrorPosX_Fine != osc_mirrorPosX_Fine_prev) {
 				osc_mirrorPosX_Fine_prev = osc_mirrorPosX_Fine;
-				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 2));
+				m.setAddress("/dmx/mp16b");
 				m.addFloatArg(osc_mirrorPosX_Fine);
 				sender.sendMessage(m, false);
 			}
@@ -120,7 +120,7 @@ void ofApp::update(){
 		else if (fsend == 4) {
 			if (osc_mirrorPosY_Fine != osc_mirrorPosY_Fine_prev) {
 				osc_mirrorPosY_Fine_prev = osc_mirrorPosY_Fine;
-				m.setAddress("/dmx/fader" + ofToString((mirrorIndex * 4) + 4));
+				m.setAddress("/dmx/mt16b");
 				m.addFloatArg(osc_mirrorPosY_Fine);
 				sender.sendMessage(m, false);
 			}
