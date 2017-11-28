@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DMXConfiguration>
 <DMXControl>
-		<Name>Minror</Name>
-		<Type>Minror</Type>
+		<Name>Mirror</Name>
+		<Type>Mirror</Type>
 		<Offset>0</Offset>
 		<Channels>
 			<Channel>
@@ -22,8 +22,8 @@
 				<Address>2</Address>
 				<Hidden>1</Hidden>
 				<Color>
-					<R>255</R>
-					<G>50</G>
+					<R>0</R>
+					<G>255</G>
 					<B>0</B>
 				</Color>
 			</Channel>

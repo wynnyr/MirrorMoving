@@ -6,8 +6,8 @@
 		<Offset>0</Offset>
 		<Channels>
 			<Channel>
-				<Name>PanLo</Name>
-				<Type>PanLo</Type>
+				<Name>Pan</Name>
+				<Type>Pan</Type>
 				<Address>1</Address>
 				<Hidden>0</Hidden>
 				<Color>
@@ -17,20 +17,9 @@
 				</Color>
 			</Channel>
 			<Channel>
-				<Name>PanHi</Name>
-				<Type>PanHi</Type>
+				<Name>Tilt</Name>
+				<Type>Tilt</Type>
 				<Address>2</Address>
-				<Hidden>1</Hidden>
-				<Color>
-					<R>255</R>
-					<G>50</G>
-					<B>0</B>
-				</Color>
-			</Channel>
-			<Channel>
-				<Name>TiltLo</Name>
-				<Type>TiltLo</Type>
-				<Address>3</Address>
 				<Hidden>1</Hidden>
 				<Color>
 					<R>0</R>
@@ -39,8 +28,19 @@
 				</Color>
 			</Channel>
 			<Channel>
-				<Name>TiltHi</Name>
-				<Type>TiltHi</Type>
+				<Name>Pan16bit</Name>
+				<Type>Pan16bit</Type>
+				<Address>3</Address>
+				<Hidden>1</Hidden>
+				<Color>
+					<R>255</R>
+					<G>50</G>
+					<B>0</B>
+				</Color>
+			</Channel>
+			<Channel>
+				<Name>Tilt16bit</Name>
+				<Type>Tilt16bit</Type>
 				<Address>4</Address>
 				<Hidden>1</Hidden>
 				<Color>

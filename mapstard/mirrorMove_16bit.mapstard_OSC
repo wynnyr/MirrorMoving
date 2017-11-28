@@ -4,7 +4,7 @@
         <IPAddress>192.168.1.117</IPAddress>
         <IPPort>8000</IPPort>
         <Command>
-            <Input>/dmx/fader1</Input>
+            <Input>/dmx/mp</Input>
             <Action>DMX Change Channel Values</Action>
             <Layer>1</Layer>
             <Output>0</Output>
@@ -16,7 +16,7 @@
             </DMX>
         </Command>
         <Command>
-            <Input>/dmx/fader2</Input>
+            <Input>/dmx/mt</Input>
             <Action>DMX Change Channel Values</Action>
             <Layer>1</Layer>
             <Output>0</Output>
@@ -28,7 +28,7 @@
             </DMX>
         </Command>
 	   <Command>
-            <Input>/dmx/fader3</Input>
+            <Input>/dmx/mp16b</Input>
             <Action>DMX Change Channel Values</Action>
             <Layer>1</Layer>
             <Output>0</Output>
@@ -40,7 +40,7 @@
             </DMX>
         </Command>
         <Command>
-            <Input>/dmx/fader4</Input>
+            <Input>/dmx/mt16b</Input>
             <Action>DMX Change Channel Values</Action>
             <Layer>1</Layer>
             <Output>0</Output>
