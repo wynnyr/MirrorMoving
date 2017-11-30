@@ -81,15 +81,15 @@ void setup() {
   Dynamixel.setStatusPaketReturnDelay(servoPan,  6); 
   Dynamixel.setStatusPaketReturnDelay(servoTilt, 6); 
   
-  Dynamixel.setPunch(servoPan, 0);
-  Dynamixel.setPunch(servoTilt,0);
+  Dynamixel.setPunch(servoPan, 200);
+  Dynamixel.setPunch(servoTilt,200);
   Dynamixel.setHoldingTorque(servoPan,  false);
   Dynamixel.setHoldingTorque(servoTilt, false);
 
-  Dynamixel.setPID(servoPan,  6, 0, 0);
-  Dynamixel.setPID(servoTilt, 20, 0, 0);
-  Dynamixel.servo(servoPan  ,servoPan_current, 0x100);
-  Dynamixel.servo(servoTilt ,servoTilt_current,0x100); 
+  Dynamixel.setPID(servoPan,  6, 0, 0);  delay(50);
+  Dynamixel.setPID(servoTilt, 64, 3, 0);delay(50);
+  Dynamixel.servo(servoPan  ,servoPan_current, 50);
+  Dynamixel.servo(servoTilt ,servoTilt_current,50); 
 
   artnet.begin(mac, ip);
   artnet.setArtDmxCallback(onDmxFrame);
@@ -100,7 +100,7 @@ void loop() {
   
   artnet.read();
   ledBlink();
-
+/*
   if (Dmxsequence != DmxsequencePrev){
      unsigned long time_recv = millis();
      DmxsequencePrev = Dmxsequence;
@@ -129,18 +129,18 @@ void loop() {
               Dynamixel.setPID(servoPan, 4,0,0);
             }
 
-            if(ratio2>0.1){
-              Dynamixel.setPID(servoTilt,20,0,1);
-            }
-            else if(ratio2>0.02){
-              Dynamixel.setPID(servoTilt,12,0,1);
-            }
-            else if(ratio2>0.01){
-              Dynamixel.setPID(servoTilt,10,0,1);
-            }
-            else if(ratio2>0.00){
-              Dynamixel.setPID(servoTilt,10,0,1);
-            }
+            //if(ratio2>0.1){
+            //  Dynamixel.setPID(servoTilt,20,0,1);
+            //}
+            //else if(ratio2>0.02){
+            //  Dynamixel.setPID(servoTilt,12,0,1);
+            //}
+            //else if(ratio2>0.01){
+            //  Dynamixel.setPID(servoTilt,10,0,1);
+            //}
+            //else if(ratio2>0.00){
+            //  Dynamixel.setPID(servoTilt,10,0,1);
+            //}
             
             previousMillis_recv = time_recv;
             Serial.print(" t=");
@@ -149,16 +149,14 @@ void loop() {
             Serial.print(ratio1,4);
             Serial.print(" r2=");
             Serial.println(ratio2,4);
-        
-        }
-        
-     }
-     
+      }
+ }
+    
      previousMillis_recv = time_recv;
      DmxdataRecvPrev[0] = DmxdataRecv[0];
      DmxdataRecvPrev[1] = DmxdataRecv[1];
   }
-
+*/
   if (currentMillis_Main - previousMillis_Main > 5){
     previousMillis_Main = currentMillis_Main;
 
@@ -169,7 +167,7 @@ void loop() {
 
     if(servoTilt_target != servoTilt_target_prev){
       servoTilt_target_prev = servoTilt_target;
-      Dynamixel.servo(servoTilt, servoTilt_target,100);
+      Dynamixel.servo(servoTilt, servoTilt_target,500);
     }
   }  
 
@@ -205,7 +203,6 @@ void loop() {
   if (digitalRead(btnPin2) == LOW && flagbtn1 == 1){
      flagbtn1 = 0;
   }
-  
 }
 
 void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* data)
@@ -222,8 +219,11 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
     servoPan_Fine_Target    = map(data[DMX_Addr+2], 0, 255, 0, (servoPanMax - servoPanMin)/255.0);
     servoTilt_Fine_Target   = map(data[DMX_Addr+3], 0, 255, 0, (servoTiltMax - servoTiltMin)/255.0);
 
-    servoPan_target  = ceil(servoPan_Coarse_Target  + servoPan_Fine_Target);
-    servoTilt_target = ceil(servoTilt_Coarse_Target + servoTilt_Fine_Target);
+    //servoPan_target  = ceil(servoPan_Coarse_Target  + servoPan_Fine_Target);
+    //servoTilt_target = ceil(servoTilt_Coarse_Target + servoTilt_Fine_Target);
+    
+    servoPan_target  = servoPan_Coarse_Target;
+    servoTilt_target = servoTilt_Coarse_Target;
     digitalWrite(ledPin2,LOW);
   }
   else
