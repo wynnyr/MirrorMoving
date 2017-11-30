@@ -1,7 +1,17 @@
 #include "ofApp.h"
 
 //--------------------------------------------------------------
-void ofApp::setup(){
+void ofApp::setup() {
+
+	if (arguments.size() > 0) {
+
+		if (arguments[1] == "-f") {
+			DMX16bit_Mode = true;
+		}
+
+	}
+
+
 	if (DMX16bit_Mode) {
 		ofSetWindowTitle("Mirror Remote - Mode 16bit");
 		borderLeft   = 30;

@@ -27,6 +27,7 @@ class ofApp : public ofBaseApp{
 		void drawCircle(float x, float y, float size, int HexColor, bool Active);
 		bool checkMouseOver(float mousePosX, float mousePosY, float objPosX, float objPosY, float distRadius);
 
+		vector<string> arguments;
 
 		ofTrueTypeFont font;
 		ofxOscSender sender;
@@ -34,7 +35,7 @@ class ofApp : public ofBaseApp{
 		uint64_t previousMillis_Main;
 		uint64_t currentMillis_Main;
 
-		bool DMX16bit_Mode = true;
+		bool DMX16bit_Mode = false;
 		bool bDebugMode = 0;
 
 		int fsend=1;
